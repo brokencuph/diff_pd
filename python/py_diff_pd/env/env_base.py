@@ -196,7 +196,12 @@ class EnvBase:
         grad_v = np.zeros(dofs)
         grad_custom = {}
         active_contact_indices = [StdIntVector(0),]
+        time_per_frame = []
         for i in range(frame_num):
+            # Record the time.
+            t_begin = time.time()
+
+            # Computation begins here.
             v_clamped.append(clamp_velocity(v[-1]))
             q_next_array = StdRealVector(dofs)
             v_next_array = StdRealVector(dofs)
@@ -232,6 +237,10 @@ class EnvBase:
             q.append(q_next)
             v.append(v_next)
 
+            # Record the time.
+            t_end = time.time()
+            time_per_frame.append(t_end - t_begin)
+
         # Save data.
         info = { 'grad_custom': grad_custom }
         info['q'] = q
@@ -239,8 +248,8 @@ class EnvBase:
         info['active_contact_indices'] = [list(a) for a in active_contact_indices]
 
         # Compute loss.
-        t_loss = time.time() - t_begin
-        info['forward_time'] = t_loss
+        info['forward_time'] = np.sum(time_per_frame)
+        info['forward_time_per_frame'] = np.copy(ndarray(time_per_frame))
 
         if vis_folder is not None:
             t_begin = time.time()
