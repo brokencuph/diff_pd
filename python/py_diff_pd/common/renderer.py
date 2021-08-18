@@ -7,7 +7,7 @@ from PIL import Image
 
 from py_diff_pd.core.py_diff_pd_core import HexMesh3d, TetMesh3d
 from py_diff_pd.common.common import ndarray, create_folder
-from py_diff_pd.common.hex_mesh import hex2obj, hex2obj_with_textures
+from py_diff_pd.common.hex_mesh import hex2obj, hex2obj_with_textures, hex2obj_with_texture_coords
 from py_diff_pd.common.tet_mesh import tet2obj, tet2obj_with_textures
 from py_diff_pd.common.project_path import root_path
 
@@ -92,7 +92,7 @@ class PbrtRenderer(object):
     # - texture_img: a file name string pointing to the texture image assumed to be in asset/texture/.
     #
     # Output: it will generate a pbrt script describing the mesh and add it to self.__hex_objects.
-    def add_hex_mesh(self, hex_mesh, transforms=None, render_voxel_edge=False, texture_map=None,
+    def add_hex_mesh(self, hex_mesh, hex_mesh_texture_coords=None, transforms=None, render_voxel_edge=False, texture_map=None,
         color=(.5, .5, .5), texture_img=None):
         hex_num = len(self.__hex_objects)
         hex_pbrt_short_name = 'hex_{:08d}.pbrt'.format(hex_num)
@@ -104,12 +104,15 @@ class PbrtRenderer(object):
                 hex_obj_name, hex_pbrt_name, tmp_error_name))
         else:
             hex_obj_name = self.__temporary_folder / 'hex_{:08d}.obj'.format(hex_num)
-            if render_voxel_edge:
+            if hex_mesh_texture_coords is not None:
+                hex2obj_with_texture_coords(hex_mesh, hex_mesh_texture_coords=hex_mesh_texture_coords, pbrt_file_name=hex_pbrt_name,
+                    compute_normal=True)
+            elif render_voxel_edge:
                 hex2obj_with_textures(hex_mesh, obj_file_name=hex_obj_name, pbrt_file_name=hex_pbrt_name,
                     texture_map=texture_map, compute_normal=True)
             else:
                 tmp_error_name = self.__temporary_folder / '.tmp.error'
-                hex2obj(hex_mesh, obj_file_name=hex_obj_name, compute_normal=True)
+                hex2obj(hex_mesh, obj_file_name=hex_obj_name)
                 os.system('{} {} {} 2>{}'.format(str(Path(root_path) / 'external/pbrt_build/obj2pbrt'),
                     hex_obj_name, hex_pbrt_name, tmp_error_name))
 
@@ -126,7 +129,7 @@ class PbrtRenderer(object):
         for c in color:
             assert 0 <= c <= 1
         r, g, b = color
-        if render_voxel_edge:
+        if render_voxel_edge or hex_mesh_texture_coords is not None:
             if texture_img is None:
                 texture_img = Path(root_path) / 'asset/texture/grid.png'
                 # You can use the code below to create a grid.png.

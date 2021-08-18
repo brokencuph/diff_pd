@@ -67,6 +67,94 @@ def generate_hex_mesh(voxels, dx, origin, bin_file_name, write=True):
 
     return voxel_indices, vertex_flag
 
+def hex2obj_with_texture_coords(hex_mesh, hex_mesh_texture_coords, pbrt_file_name,
+    compute_normal):
+    vertex_num = hex_mesh.NumOfVertices()
+    element_num = hex_mesh.NumOfElements()
+    hex_mesh_texture_coords = ndarray(hex_mesh_texture_coords)
+
+    face_dict = {}
+    face_idx = [
+        (0, 1, 3, 2),
+        (4, 6, 7, 5),
+        (0, 4, 5, 1),
+        (2, 3, 7, 6),
+        (1, 5, 7, 3),
+        (0, 2, 6, 4)
+    ]
+    for i in range(element_num):
+        fi = ndarray(hex_mesh.py_element(i))
+        for f in face_idx:
+            vidx = [int(fi[fij]) for fij in f]
+            vidx_key = tuple(sorted(vidx))
+            if vidx_key in face_dict:
+                del face_dict[vidx_key]
+            else:
+                face_dict[vidx_key] = vidx
+
+    f = []
+    for _, vidx in face_dict.items():
+        f.append(vidx)
+    f = ndarray(f).astype(int)
+    # Now f is a list of quads.
+
+    v_out = []
+    f_out = []
+    texture_out = []
+    v_cnt = 0
+    for fi in f:
+        fi_out = [v_cnt, v_cnt + 1, v_cnt + 2, v_cnt + 3]
+        f_out.append(fi_out)
+        v_cnt += 4
+        for vi in fi:
+            v_out.append(ndarray(hex_mesh.py_vertex(int(vi))))
+            texture_out.append(hex_mesh_texture_coords[int(vi)])
+
+    # Normals.
+    vn = []
+    if compute_normal:
+        vert_num = len(v_out)
+        vn = np.zeros((vert_num, 3))
+        for ff in f_out:
+            v0, v1, v2 = v_out[ff[0]], v_out[ff[1]], v_out[ff[2]]
+            weighted_norm = np.cross(v1 - v0, v2 - v1)
+            for i in range(3):
+                vn[ff[i]] += weighted_norm
+        # Normalization.
+        vn_len = np.sqrt(np.sum(vn ** 2, axis=1)) + 1e-6
+        vn /= vn_len[:, None]
+
+    with open(pbrt_file_name, 'w') as f_pbrt:
+        f_pbrt.write('AttributeBegin\n')
+        f_pbrt.write('Shape "trianglemesh"\n')
+
+        # Log point data.
+        f_pbrt.write('  "point3 P" [\n')
+        for vv in v_out:
+            f_pbrt.write('  {:6f} {:6f} {:6f}\n'.format(vv[0], vv[1], vv[2]))
+        f_pbrt.write(']\n')
+
+        # Log texture data.
+        f_pbrt.write('  "float uv" [\n')
+        for u, v in texture_out:
+            f_pbrt.write('  {:f} {:f}\n'.format(u, v))
+        f_pbrt.write(']\n')
+
+        # Log face data.
+        f_pbrt.write('  "integer indices" [\n')
+        for ff in f_out:
+            f_pbrt.write('  {:d} {:d} {:d} {:d} {:d} {:d}\n'.format(ff[0], ff[1], ff[2], ff[0], ff[2], ff[3]))
+        f_pbrt.write(']\n')
+
+        # Log normal data.
+        if compute_normal:
+            f_pbrt.write('  "normal N" [\n')
+            for vv in vn:
+                f_pbrt.write('  {:6f} {:6f} {:6f}\n'.format(vv[0], vv[1], vv[2]))
+            f_pbrt.write(']\n')
+
+        f_pbrt.write('AttributeEnd\n')
+
 # Given a hex mesh, save it as an obj file with texture coordinates.
 def hex2obj_with_textures(hex_mesh, obj_file_name=None, pbrt_file_name=None,
     texture_map=None, compute_normal=False):
