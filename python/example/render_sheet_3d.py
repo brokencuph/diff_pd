@@ -82,11 +82,11 @@ if __name__ == '__main__':
                     options = {
                         'file_name': render_folder / 'ratio_{:3f}'.format(ratio) / method / '{:04d}.png'.format(i),
                         'light_map': 'uffizi-large.exr',
-                        'sample': 512,
+                        'sample': 128,
                         'max_depth': 2,
                         'camera_pos': (0.06, -0.48, 0.88),
                         'camera_lookat': (0, .0, .4),
-                        'resolution': (800, 800),
+                        'resolution': (1600, 1600),
                         'fov': 60
                     }
                     renderer = PbrtRenderer(options)
