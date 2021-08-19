@@ -53,7 +53,8 @@ if __name__ == '__main__':
 
                 # Create the obstacle.
                 z = (collided_nodes - obs_center)[:, 2]
-                angle = np.arccos(np.min(np.clip(z / obs_radius, -1, 1)))
+                # Minus 0.01 to avoid rendering artifacts.
+                angle = np.arccos(np.min(np.clip(z / obs_radius, -1, 1))) - 0.01
                 obs_verts = []
                 obs_eles = []
                 angle_num = 24
