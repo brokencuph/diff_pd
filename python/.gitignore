@@ -2,6 +2,7 @@
 **/*.obj
 **/*.bin
 **/*.png
+**/*.jpg
 **/*.pdf
 *.gif
 *.mp4
