@@ -17,7 +17,7 @@ if __name__ == '__main__':
     img_data = ndarray(img.getdata()).reshape(img.size[0], img.size[1], 3) / 255
     full_size = 2400
     edge_size = 1
-    for s in (25, 50, 100):
+    for s in (25, 50, 75, 100):
         img_resized_data = ndarray(img.resize((s, s)).getdata()).reshape(s, s, 3) / 255
         full_data = ndarray(np.zeros((full_size, full_size, 3)))
         voxel_size = int(full_size // s)

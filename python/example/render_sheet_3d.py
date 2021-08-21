@@ -16,7 +16,7 @@ from py_diff_pd.common.project_path import root_path
 
 if __name__ == '__main__':
     # Loop over three resolutions.
-    for s in (25, 50, 100):
+    for s in (25, 50, 75, 100):
         seed = 42
         data_folder = Path('sheet_3d_{:d}x{:d}'.format(s, s))
         render_folder = Path('render_sheet_3d_{:d}x{:d}'.format(s, s))
