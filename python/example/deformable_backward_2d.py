@@ -11,7 +11,7 @@ import numpy as np
 from py_diff_pd.common.common import ndarray, create_folder
 from py_diff_pd.common.common import print_info, print_ok, print_error
 from py_diff_pd.common.grad_check import check_gradients
-from py_diff_pd.env.benchmark_env_2d import BenchmarkEnv2d
+from py_diff_pd.env.cantilever_env_2d import CantileverEnv2d
 
 def test_deformable_backward_2d(verbose):
     seed = 42
@@ -21,7 +21,7 @@ def test_deformable_backward_2d(verbose):
     poissons_ratio = 0.45
     actuator_parameters = ndarray([4., 4.])
     state_force_parameters = ndarray([0., -9.81])
-    env = BenchmarkEnv2d(seed, folder, {
+    env = CantileverEnv2d(seed, folder, {
         'refinement': refinement,
         'youngs_modulus': youngs_modulus,
         'poissons_ratio': poissons_ratio,
@@ -72,12 +72,12 @@ def test_deformable_backward_2d(verbose):
             material_params_pos[i] += material_eps
             material_params_neg = np.copy(material_params)
             material_params_neg[i] -= material_eps
-            env_pos = BenchmarkEnv2d(seed, folder, { 'refinement': refinement,
+            env_pos = CantileverEnv2d(seed, folder, { 'refinement': refinement,
                 'youngs_modulus': material_params_pos[0],
                 'poissons_ratio': material_params_pos[1],
                 'actuator_parameters': actuator_parameters,
                 'state_force_parameters': state_force_parameters })
-            env_neg = BenchmarkEnv2d(seed, folder, { 'refinement': refinement,
+            env_neg = CantileverEnv2d(seed, folder, { 'refinement': refinement,
                 'youngs_modulus': material_params_neg[0],
                 'poissons_ratio': material_params_neg[1],
                 'actuator_parameters': actuator_parameters,
@@ -98,13 +98,13 @@ def test_deformable_backward_2d(verbose):
             act_params_pos[i] += act_eps
             act_params_neg = np.copy(actuator_parameters)
             act_params_neg[i] -= act_eps
-            env_pos = BenchmarkEnv2d(seed, folder, {
+            env_pos = CantileverEnv2d(seed, folder, {
                 'refinement': refinement,
                 'youngs_modulus': youngs_modulus,
                 'poissons_ratio': poissons_ratio,
                 'actuator_parameters': act_params_pos,
                 'state_force_parameters': state_force_parameters })
-            env_neg = BenchmarkEnv2d(seed, folder, {
+            env_neg = CantileverEnv2d(seed, folder, {
                 'refinement': refinement,
                 'youngs_modulus': youngs_modulus,
                 'poissons_ratio': poissons_ratio,
@@ -127,13 +127,13 @@ def test_deformable_backward_2d(verbose):
             state_params_pos[i] += state_eps
             state_params_neg = np.copy(state_force_parameters)
             state_params_neg[i] -= state_eps
-            env_pos = BenchmarkEnv2d(seed, folder, {
+            env_pos = CantileverEnv2d(seed, folder, {
                 'refinement': refinement,
                 'youngs_modulus': youngs_modulus,
                 'poissons_ratio': poissons_ratio,
                 'actuator_parameters': actuator_parameters,
                 'state_force_parameters': state_params_pos })
-            env_neg = BenchmarkEnv2d(seed, folder, {
+            env_neg = CantileverEnv2d(seed, folder, {
                 'refinement': refinement,
                 'youngs_modulus': youngs_modulus,
                 'poissons_ratio': poissons_ratio,

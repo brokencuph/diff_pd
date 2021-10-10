@@ -100,7 +100,7 @@ class PbrtRenderer(object):
         if isinstance(hex_mesh, str):
             hex_obj_name = hex_mesh
             tmp_error_name = self.__temporary_folder / '.tmp.error'
-            os.system('{} {} {} 2>{}'.format(str(Path(root_path) / 'external/pbrt_build/obj2pbrt'),
+            os.system('{} "{}" "{}" 2>"{}"'.format(str(Path(root_path) / 'external/pbrt_build/obj2pbrt'),
                 hex_obj_name, hex_pbrt_name, tmp_error_name))
         else:
             hex_obj_name = self.__temporary_folder / 'hex_{:08d}.obj'.format(hex_num)

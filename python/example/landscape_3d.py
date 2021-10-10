@@ -7,12 +7,12 @@ import numpy as np
 
 from py_diff_pd.common.common import ndarray, create_folder
 from py_diff_pd.common.common import print_info
-from py_diff_pd.env.benchmark_env_3d import BenchmarkEnv3d
+from py_diff_pd.env.cantilever_env_3d import CantileverEnv3d
 
 if __name__ == '__main__':
     seed = 42
     folder = Path('landscape_3d')
-    env = BenchmarkEnv3d(seed, folder, { 'refinement': 3 })
+    env = CantileverEnv3d(seed, folder, { 'refinement': 3 })
     deformable = env.deformable()
 
     opts = {}

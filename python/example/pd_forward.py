@@ -9,7 +9,7 @@ import numpy as np
 
 from py_diff_pd.core.py_diff_pd_core import QuadMesh2d, QuadDeformable, StdRealVector
 from py_diff_pd.common.common import create_folder, ndarray, print_info, print_error, print_ok
-from py_diff_pd.env.benchmark_env_2d import BenchmarkEnv2d
+from py_diff_pd.env.cantilever_env_2d import CantileverEnv2d
 from py_diff_pd.env.circle_env_2d import CircleEnv2d
 
 def test_pd_forward(verbose):
@@ -70,7 +70,7 @@ def test_pd_forward(verbose):
 
         return True
 
-    if not test_env(BenchmarkEnv2d): return False
+    if not test_env(CantileverEnv2d): return False
     if not test_env(CircleEnv2d): return False
     return True
 

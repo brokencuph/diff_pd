@@ -10,25 +10,25 @@ import pickle
 from py_diff_pd.common.common import ndarray, create_folder
 from py_diff_pd.common.common import print_info, print_ok, print_error
 from py_diff_pd.common.grad_check import check_gradients
-from py_diff_pd.env.sheet_env_3d import SheetEnv3d
+from py_diff_pd.env.napkin_env_3d import NapkinEnv3d
 
 if __name__ == '__main__':
     for s in (25, 50, 75, 100):
         seed = 42
-        data_folder = Path('sheet_3d_{:d}x{:d}'.format(s, s))
+        data_folder = Path('napkin_3d_{:d}x{:d}'.format(s, s))
         methods = ('newton_pcg', 'pd_eigen')
         dt = 2e-3
         frame_num = 125
 
         # The ratios [0.4, 0.8, 1.0, 1.6] correspond to the four scenarios in Fig. 7 of the paper.
         for ratio in [0.4, 0.8, 1.0, 1.6]:
-            env = SheetEnv3d(seed, data_folder, {
+            env = NapkinEnv3d(seed, data_folder, {
                 'contact_ratio': ratio,
                 'cell_nums': (s, s, 1),
                 'spp': 1,
             })
-            obs_center = ndarray([0, 0, 0]) # This is from SheetEnv3d.
-            obs_radius = 0.5                # This is from SheetEnv3d.
+            obs_center = ndarray([0, 0, 0]) # This is from NapkinEnv3d.
+            obs_radius = 0.5                # This is from NapkinEnv3d.
             deformable = env.deformable()
             print('dofs:', deformable.dofs())
             f_idx = env.friction_node_idx()

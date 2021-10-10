@@ -8,7 +8,7 @@ import numpy as np
 from py_diff_pd.common.common import ndarray, create_folder
 from py_diff_pd.common.common import print_info, print_ok, print_error
 from py_diff_pd.common.grad_check import check_gradients
-from py_diff_pd.env.benchmark_env_2d import BenchmarkEnv2d
+from py_diff_pd.env.cantilever_env_2d import CantileverEnv2d
 from py_diff_pd.core.py_diff_pd_core import StdRealMatrix
 
 def test_pd_energy_2d(verbose):
@@ -17,7 +17,7 @@ def test_pd_energy_2d(verbose):
     refinement = 6
     youngs_modulus = 1e4
     poissons_ratio = 0.45
-    env = BenchmarkEnv2d(seed, folder, { 'refinement': refinement, 'youngs_modulus': youngs_modulus,
+    env = CantileverEnv2d(seed, folder, { 'refinement': refinement, 'youngs_modulus': youngs_modulus,
         'poissons_ratio': poissons_ratio })
     deformable = env.deformable()
 
@@ -74,7 +74,7 @@ def test_pd_energy_2d(verbose):
 
         material_params_pos = np.copy(material_params)
         material_params_pos[i] += eps
-        env_pos = BenchmarkEnv2d(seed, folder, { 'refinement': refinement,
+        env_pos = CantileverEnv2d(seed, folder, { 'refinement': refinement,
             'youngs_modulus': material_params_pos[0],
             'poissons_ratio': material_params_pos[1] })
 

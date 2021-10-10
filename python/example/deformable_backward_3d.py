@@ -12,12 +12,12 @@ import pickle
 from py_diff_pd.common.common import ndarray, create_folder
 from py_diff_pd.common.common import print_info, print_ok, print_error, PrettyTabular
 from py_diff_pd.common.grad_check import check_gradients
-from py_diff_pd.env.benchmark_env_3d import BenchmarkEnv3d
+from py_diff_pd.env.cantilever_env_3d import CantileverEnv3d
 
 def test_deformable_backward_3d(verbose):
     seed = 42
     folder = Path('deformable_backward_3d')
-    env = BenchmarkEnv3d(seed, folder, { 'refinement': 1, 'youngs_modulus': 1e4, 'poissons_ratio': 0.4 })
+    env = CantileverEnv3d(seed, folder, { 'refinement': 1, 'youngs_modulus': 1e4, 'poissons_ratio': 0.4 })
     deformable = env.deformable()
 
     methods = ['newton_pcg', 'newton_cholesky', 'pd_eigen']
@@ -117,12 +117,6 @@ def test_deformable_backward_3d(verbose):
         fig.savefig(folder / 'deformable_backward_3d_rtol.pdf')
         fig.savefig(folder / 'deformable_backward_3d_rtol.png')
         plt.show()
-
-        for method, opt in zip(methods, opts):
-            opt['rel_tol'] = rtols[-1]
-            env.simulate(dt, frame_num, method, opt, q0, v0, [a0 for _ in range(frame_num)],
-                [f0 for _ in range(frame_num)], require_grad=False, vis_folder=method)
-            os.system('eog {}.gif'.format(folder / method))
 
     # Check gradients.
     eps = 1e-4

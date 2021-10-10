@@ -264,10 +264,11 @@ def hex2obj_with_textures(hex_mesh, obj_file_name=None, pbrt_file_name=None,
             f_pbrt.write(']\n')
 
             # Log normal data.
-            f_pbrt.write('  "normal N" [\n')
-            for vv in vn:
-                f_pbrt.write('  {:6f} {:6f} {:6f}\n'.format(vv[0], vv[1], vv[2]))
-            f_pbrt.write(']\n')
+            if compute_normal:
+                f_pbrt.write('  "normal N" [\n')
+                for vv in vn:
+                    f_pbrt.write('  {:6f} {:6f} {:6f}\n'.format(vv[0], vv[1], vv[2]))
+                f_pbrt.write(']\n')
 
             f_pbrt.write('AttributeEnd\n')
 

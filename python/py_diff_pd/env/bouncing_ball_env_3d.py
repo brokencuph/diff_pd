@@ -28,7 +28,7 @@ class BouncingBallEnv3d(EnvBase):
         mu = youngs_modulus / (2 * (1 + poissons_ratio))
         density = 1e3
 
-        # Shape of the rolling jelly.
+        # Shape of the rolling sphere.
         bin_file_name = Path(root_path) / 'asset' / 'mesh' / 'lock.bin'
         mesh = HexMesh3d()
         mesh.Initialize(str(bin_file_name))

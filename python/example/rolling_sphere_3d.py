@@ -2,56 +2,73 @@ import sys
 sys.path.append('../')
 
 import os
-import subprocess
 from pathlib import Path
 import time
-from pathlib import Path
-import pickle
-import scipy.optimize
 import numpy as np
+import scipy.optimize
+import pickle
 
-from py_diff_pd.common.common import ndarray, create_folder
-from py_diff_pd.common.common import print_info, PrettyTabular
-from py_diff_pd.env.cantilever_env_3d import CantileverEnv3d
+from py_diff_pd.common.common import ndarray, create_folder, rpy_to_rotation, rpy_to_rotation_gradient
+from py_diff_pd.common.common import print_info, print_ok, print_error, PrettyTabular
+from py_diff_pd.common.grad_check import check_gradients
+from py_diff_pd.core.py_diff_pd_core import StdRealVector
+from py_diff_pd.env.rolling_sphere_env_3d import RollingSphereEnv3d
 from py_diff_pd.common.display import export_mp4
 
-def test_cantilever_3d(verbose):
+def test_rolling_sphere(verbose):
     seed = 42
-    folder = Path('cantilever_3d')
-    env = CantileverEnv3d(seed, folder, { 'refinement': 8 })
+    folder = Path('rolling_sphere_3d')
+    refinement = 10
+    youngs_modulus = 2e6
+    poissons_ratio = 0.4
+    env = RollingSphereEnv3d(seed, folder, { 'refinement': refinement,
+        'youngs_modulus': youngs_modulus,
+        'poissons_ratio': poissons_ratio })
     deformable = env.deformable()
 
     # Setting thread number.
-    thread_cts = [2, 4, 8, 12]
+    thread_cts = [2, 4, 8]
 
-    methods = ('newton_pcg', 'newton_cholesky', 'pd_eigen', 'pd_no_bfgs')
+    methods = ('newton_pcg', 'newton_cholesky', 'pd_eigen', 'pd_no_acc')
     opts = ({ 'max_newton_iter': 5000, 'max_ls_iter': 10, 'abs_tol': 1e-9, 'rel_tol': 1e-4, 'verbose': 0, 'thread_ct': 4 },
         { 'max_newton_iter': 5000, 'max_ls_iter': 10, 'abs_tol': 1e-9, 'rel_tol': 1e-4, 'verbose': 0, 'thread_ct': 4 },
         { 'max_pd_iter': 5000, 'max_ls_iter': 10, 'abs_tol': 1e-9, 'rel_tol': 1e-4, 'verbose': 0, 'thread_ct': 4,
             'use_bfgs': 1, 'bfgs_history_size': 10 },
         { 'max_pd_iter': 5000, 'max_ls_iter': 10, 'abs_tol': 1e-9, 'rel_tol': 1e-4, 'verbose': 0, 'thread_ct': 4,
-            'use_bfgs': 0, 'bfgs_history_size': 10 })
+            'use_bfgs': 1, 'bfgs_history_size': 10, 'use_acc': 0 })
 
+    dt = 5e-3
+    frame_num = 100
+
+    # Initial state.
     dofs = deformable.dofs()
     act_dofs = deformable.act_dofs()
-    q0 = env.default_init_position()
-    v0 = env.default_init_velocity()
-    a0 = np.random.uniform(size=act_dofs)
-    f0 = np.random.normal(scale=0.1, size=dofs) * 1e-3
+    q0 = env.default_init_position() + np.random.normal(scale=0.001, size=dofs)
+    radius = env.radius()
+    pivot = ndarray([radius, radius, 0])
+    omega = ndarray([0, 10.0, 0])
+    omega_x, omega_y, omega_z = omega
+    omega_skewed = ndarray([
+        [0, -omega_z, omega_y],
+        [omega_z, 0, -omega_x],
+        [-omega_y, omega_x, 0]
+    ])
+    v0 = (q0.reshape((-1, 3)) @ -omega_skewed).ravel()
+    a0 = np.zeros(act_dofs)
+    f0 = np.zeros(dofs)
 
     # Visualization.
-    dt = 1e-2
-    frame_num = 25
     if verbose:
         for method, opt in zip(methods, opts):
-            env.simulate(dt, frame_num,
-                'pd_eigen' if method == 'pd_no_bfgs' else method,
+            _, _, info = env.simulate(dt, frame_num, 'pd_eigen' if method == 'pd_no_acc' else method,
                 opt, q0, v0, [a0 for _ in range(frame_num)],
-                [f0 for _ in range(frame_num)], require_grad=False, vis_folder=method)
+            [f0 for _ in range(frame_num)], require_grad=True, vis_folder=method)
+            print('{}: forward: {:3.3f}s; backward: {:3.3f}s'.format(method, info['forward_time'], info['backward_time']))
             export_mp4(folder / method, '{}.mp4'.format(str(folder / method)), fps=12)
 
     # Benchmark time.
-    print('Reporting time cost. DoFs: {:d}, frames: {:d}, dt: {:3.3e}'.format(dofs, frame_num, dt))
+    print('Reporting time cost. DoFs: {:d}, Contact DoFs: {:d}, frames: {:d}, dt: {:3.3e}'.format(dofs,
+        env.contact_dofs(), frame_num, dt))
     rel_tols = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7]
     forward_backward_times = {}
     forward_times = {}
@@ -83,7 +100,7 @@ def test_cantilever_3d(verbose):
             for thread_ct in thread_cts:
                 opt['thread_ct'] = thread_ct
                 meth_thread_num = '{}_{}threads'.format(method, thread_ct)
-                loss, grad, info = env.simulate(dt, frame_num, 'pd_eigen' if method == 'pd_no_bfgs' else method,
+                loss, grad, info = env.simulate(dt, frame_num, 'pd_eigen' if method == 'pd_no_acc' else method,
                     opt, q0, v0, [a0 for _ in range(frame_num)],
                     [f0 for _ in range(frame_num)], require_grad=True, vis_folder=None)
                 grad_q, grad_v, grad_a, grad_f = grad
@@ -108,4 +125,4 @@ def test_cantilever_3d(verbose):
 
 if __name__ == '__main__':
     verbose = True
-    test_cantilever_3d(verbose)
+    test_rolling_sphere(verbose)

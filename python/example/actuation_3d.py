@@ -9,12 +9,12 @@ from py_diff_pd.core.py_diff_pd_core import StdRealMatrix
 from py_diff_pd.common.common import ndarray, create_folder
 from py_diff_pd.common.common import print_info, print_ok, print_error
 from py_diff_pd.common.grad_check import check_gradients
-from py_diff_pd.env.benchmark_env_3d import BenchmarkEnv3d
+from py_diff_pd.env.cantilever_env_3d import CantileverEnv3d
 
 def test_actuation_3d(verbose):
     seed = 42
     folder = Path('actuation_3d')
-    env = BenchmarkEnv3d(seed, folder, { 'refinement': 2 })
+    env = CantileverEnv3d(seed, folder, { 'refinement': 2 })
 
     dofs = env.deformable().dofs()
     act_dofs = env.deformable().act_dofs()
@@ -55,7 +55,7 @@ def test_actuation_3d(verbose):
 
     # Add the contribution of the stiffness parameters.
     env_pos_act_params = np.log10(env._actuator_parameter_to_stiffness(env._actuator_parameters) + dw)
-    env_pos = BenchmarkEnv3d(seed, folder, { 'refinement': 2, 'actuator_parameters': env_pos_act_params })
+    env_pos = CantileverEnv3d(seed, folder, { 'refinement': 2, 'actuator_parameters': env_pos_act_params })
     df_numerical = ndarray(env.deformable().PyActuationForce(q0 + dq, a0 + da)) \
         - ndarray(env.deformable().PyActuationForce(q0, a0)) \
         + env_pos.deformable().PyActuationForce(q0, a0) \

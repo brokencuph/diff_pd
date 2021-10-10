@@ -19,7 +19,7 @@ if __name__ == '__main__':
     plt.rc('figure', titlesize=24)      # Fontsize of the figure title.
 
     folder = Path('landscape_3d')
-    rel_scale = 0.001 / (0.08 * 4)    # This is specific to BenchmarkEnv3d.
+    rel_scale = 0.001 / (0.08 * 4)    # This is specific to CantileverEnv3d.
     all_losses, all_grads, ss, all_dqs = pickle.load(open(folder / 'table.bin', 'rb'))
 
     # Normalize data to obtain relative errors.
