@@ -112,4 +112,3 @@ dependencies:
     - scooby==0.5.6
     - tetgen==0.5.1
     - vtk==9.0.1
-prefix: /home/taodu/libraries/miniconda3/envs/diff_pd
