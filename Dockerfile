@@ -13,6 +13,7 @@ RUN apt update && apt install -y --no-install-recommends \
     libxext6 \
     libx11-6 \
     imagemagick-6.q16 \
-    libmagickcore-6.q16-6-extra
+    libmagickcore-6.q16-6-extra \
+    ffmpeg
 ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES graphics,utility,compute
