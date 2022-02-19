@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(diff_pd)
+project(diff_pd LANGUAGES CXX CUDA)
 
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Pardiso requires stack variables to be aligned.
 # Thanks to Fish for figuring out the flag -mpreferred-stack-boundary=4
 # This magic number is suitable only for libpardiso600-GNU720-X86-64.so
-add_definitions("-Wall -mpreferred-stack-boundary=4")
+#add_definitions("-Wall -mpreferred-stack-boundary=4")
 set(GCC_COVERAGE_COMPILE_FLAGS "-Wl,--no-as-needed")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 
@@ -39,7 +39,7 @@ execute_process(COMMAND bash -c "python3-config --includes|sed 's/-I//g'|awk '{p
 include_directories(${PYTHON_INCLUDES})
 
 # The core library.
-file(GLOB_RECURSE CORE_CPP "./core/src/**/*.cpp")
+file(GLOB_RECURSE CORE_CPP "./core/src/**/*.cpp" "./core/src/**/*.cu")
 add_library(diff_pd_core SHARED ${CORE_CPP})
 if(PARDISO_AVAILABLE)
     target_link_libraries(diff_pd_core pardiso lapack blas OpenMP::OpenMP_CXX pthread m)
@@ -48,7 +48,7 @@ else()
 endif()
 
 # Python wrapper library.
-file(GLOB_RECURSE PYTHON_BINDING "./core/src/**/*.cpp" "./core/src/py_diff_pd_core_wrap.cxx")
+file(GLOB_RECURSE PYTHON_BINDING "./core/src/**/*.cpp" "./core/src/**/*.cu" "./core/src/py_diff_pd_core_wrap.cxx")
 add_library(py_diff_pd_core SHARED ${CORE_HEADER} ${PYTHON_BINDING})
 if(PARDISO_AVAILABLE)
     target_link_libraries(py_diff_pd_core pardiso lapack blas OpenMP::OpenMP_CXX pthread m)
