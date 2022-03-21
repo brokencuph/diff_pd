@@ -25,7 +25,7 @@
 #include "Eigen/Dense"
 #include "Eigen/Sparse"
 
-using real = double;
+using real = float;
 
 // PRINT_LEVEL:
 // 0: silence;

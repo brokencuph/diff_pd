@@ -14,6 +14,12 @@ void Save<real>(std::ofstream& f, const real& val) {
 }
 
 template<>
+void Save<double>(std::ofstream& f, const double& val) {
+    const double val_db = val;
+    f.write(reinterpret_cast<const char*>(&val_db), sizeof(double));
+}
+
+template<>
 void Save<bool>(std::ofstream& f, const bool& val) {
     const char ch = static_cast<char>(val);
     f.write(reinterpret_cast<const char*>(&ch), sizeof(char));
@@ -106,6 +112,13 @@ const real Load<real>(std::ifstream& f) {
     double val = 0;
     f.read(reinterpret_cast<char*>(&val), sizeof(double));
     return ToReal(val);
+}
+
+template<>
+const double Load<double>(std::ifstream& f) {
+    double val = 0;
+    f.read(reinterpret_cast<char*>(&val), sizeof(double));
+    return val;
 }
 
 template<>

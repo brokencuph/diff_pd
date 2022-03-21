@@ -43,7 +43,6 @@ void Deformable<vertex_dim, element_dim>::SetupProjectiveDynamicsSolver(const st
 
     std::cout << "vertex_num=" << vertex_num << std::endl;
     std::cout << "element_num=" << element_num << std::endl;
-    test_add();
 
     // Part II: PD element energy: w_i * S'A'AS.
     real w = 0;
@@ -318,7 +317,7 @@ const VectorXr Deformable<vertex_dim, element_dim>::PdNonlinearSolve(const std::
     VectorXr q_sol = q_init;
     // Enforce dirichlet boundary conditions.
     VectorXr selected = VectorXr::Ones(dofs_);
-    std::cout << "Size of augmented_dirichlet = " << augmented_dirichlet.size() << std::endl;
+    // std::cout << "Size of augmented_dirichlet = " << augmented_dirichlet.size() << std::endl;
     for (const auto& pair : augmented_dirichlet) {
         q_sol(pair.first) = pair.second;
         selected(pair.first) = 0;
@@ -416,11 +415,11 @@ const VectorXr Deformable<vertex_dim, element_dim>::PdNonlinearSolve(const std::
             if (verbose_level > 1) Tic();
             real step_size = 1;
             VectorXr q_sol_next = q_sol - step_size * quasi_newton_direction;
-            auto t0 = system_clock::now();
+            // auto t0 = system_clock::now();
             if (use_precomputed_data) ComputeDeformationGradientAuxiliaryDataAndProjection(q_sol_next);
             real energy_next = ElasticEnergy(q_sol_next) + ComputePdEnergy(q_sol_next, use_precomputed_data) + ActuationEnergy(q_sol_next, a);
-            auto t1 = system_clock::now();
-            std::cout << "line search time: " << duration_cast<milliseconds>(t1 - t0).count() << std::endl;
+            // auto t1 = system_clock::now();
+            // std::cout << "line search time: " << duration_cast<microseconds>(t1 - t0).count() << std::endl;
             real obj_next = eval_obj(q_sol_next, energy_next);
             const real gamma = ToReal(1e-4);
             bool ls_success = false;
@@ -554,7 +553,7 @@ void Deformable<vertex_dim, element_dim>::ForwardProjectiveDynamics(const std::s
     }
     // t1 = std::chrono::system_clock::now();
     // std::cout << "P2: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count() << std::endl;
-    auto t0 = std::chrono::system_clock::now();
+    // auto t0 = std::chrono::system_clock::now();
     const int max_contact_iter = 5;
     std::vector<std::set<int>> active_contact_idx_history;
     for (int contact_iter = 0; contact_iter < max_contact_iter; ++contact_iter) {
@@ -567,10 +566,10 @@ void Deformable<vertex_dim, element_dim>::ForwardProjectiveDynamics(const std::s
                 additional_dirichlet[idx * vertex_dim + i] = q(idx * vertex_dim + i);
         }
         // The PD iteration.
-        auto t20 = std::chrono::system_clock::now();
+        // auto t20 = std::chrono::system_clock::now();
         const VectorXr q_sol = PdNonlinearSolve(method, q, a, inv_h2m, rhs, additional_dirichlet, options);
-        auto t21 = std::chrono::system_clock::now();
-        std::cout << "Solve time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t21 - t20).count() << std::endl;
+        // auto t21 = std::chrono::system_clock::now();
+        // std::cout << "Solve time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t21 - t20).count() << std::endl;
         const VectorXr force_sol = ElasticForce(q_sol) + PdEnergyForce(q_sol, use_bfgs) + ActuationForce(q_sol, a);
 
         // Now verify the contact conditions.
@@ -623,12 +622,12 @@ void Deformable<vertex_dim, element_dim>::ForwardProjectiveDynamics(const std::s
             v_next = (q_next - q) / h;
             if (!good) PrintWarning("The contact set fails to converge after 5 iterations.");
             active_contact_idx = SetToVector(past_active_contact_idx);
-            auto t1 = std::chrono::system_clock::now();
-            std::cout << "P3: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count() << " (iter " << contact_iter << ")" << std::endl;
+            // auto t1 = std::chrono::system_clock::now();
+            // std::cout << "P3: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count() << " (iter " << contact_iter << ")" << std::endl;
             return;
         }
-        auto t11 = std::chrono::system_clock::now();
-        std::cout << "On iter " << contact_iter << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(t11 - t10).count() << std::endl;
+        // auto t11 = std::chrono::system_clock::now();
+        // std::cout << "On iter " << contact_iter << ": " << std::chrono::duration_cast<std::chrono::milliseconds>(t11 - t10).count() << std::endl;
     }
 }
 

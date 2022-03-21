@@ -75,7 +75,9 @@ if __name__ == '__main__':
     # Visualize initial guess.
     a_init = variable_to_act(x_init)
     print_info('Simulating and rendering initial solution. Please check out the {}/init folder'.format(folder))
-    env.simulate(dt, frame_num, methods[0], opts[0], q0, v0, [a_init for _ in range(frame_num)], f0, require_grad=False, vis_folder='init')
+    _, info = env.simulate(dt, frame_num, methods[0], opts[0], q0, v0, [a_init for _ in range(frame_num)], f0, require_grad=False, vis_folder=None)
+    print("forward_time={}, forward_time_per_frame={}".format(info['forward_time'], info['forward_time_per_frame']))
+    exit(0)
     print_info('Initial guess is ready. You can play it by opening {}/init.gif'.format(folder))
 
     bounds = scipy.optimize.Bounds(x_lb, x_ub)

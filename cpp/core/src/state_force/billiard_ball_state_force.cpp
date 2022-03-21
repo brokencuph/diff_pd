@@ -51,8 +51,8 @@ const VectorXr BilliardBallStateForce<vertex_dim>::ForwardForce(const VectorXr& 
             const VectorXr dir_i2j = cj - ci;
             const real cij_dist = dir_i2j.norm();
             // Now compute the spring force.
-            const real fj_mag = std::max(2 * radius_ - cij_dist, 0.0) * stiffness(j);
-            const real fi_mag = std::max(2 * radius_ - cij_dist, 0.0) * stiffness(i);
+            const real fj_mag = std::max(2 * radius_ - cij_dist, 0.0f) * stiffness(j);
+            const real fi_mag = std::max(2 * radius_ - cij_dist, 0.0f) * stiffness(i);
             const VectorXr i2j = dir_i2j / cij_dist;
             const VectorXr fj = i2j * fj_mag;
             const VectorXr fi = -i2j * fi_mag;
@@ -128,12 +128,12 @@ void BilliardBallStateForce<vertex_dim>::BackwardForce(const VectorXr& q, const 
             const VectorXr d_cij_dist_ci = jac_dir_i2j_ci.transpose() * dir_i2j / cij_dist;
             const VectorXr d_cij_dist_cj = jac_dir_i2j_cj.transpose() * dir_i2j / cij_dist;
             // Now compute the force.
-            const real fj_mag = std::max(2 * radius_ - cij_dist, 0.0) * stiffness(j);
-            const real fi_mag = std::max(2 * radius_ - cij_dist, 0.0) * stiffness(i);
+            const real fj_mag = std::max(2 * radius_ - cij_dist, 0.0f) * stiffness(j);
+            const real fi_mag = std::max(2 * radius_ - cij_dist, 0.0f) * stiffness(i);
             VectorXr d_fj_mag_dp = VectorXr::Zero(2 * ball_num);
             VectorXr d_fi_mag_dp = VectorXr::Zero(2 * ball_num);
-            d_fj_mag_dp(j) = std::max(2 * radius_ - cij_dist, 0.0);
-            d_fi_mag_dp(i) = std::max(2 * radius_ - cij_dist, 0.0);
+            d_fj_mag_dp(j) = std::max(2 * radius_ - cij_dist, 0.0f);
+            d_fi_mag_dp(i) = std::max(2 * radius_ - cij_dist, 0.0f);
             VectorXr d_fj_mag_ci = VectorXr::Zero(vertex_dim);
             VectorXr d_fj_mag_cj = VectorXr::Zero(vertex_dim);
             VectorXr d_fi_mag_ci = VectorXr::Zero(vertex_dim);
@@ -165,9 +165,9 @@ void BilliardBallStateForce<vertex_dim>::BackwardForce(const VectorXr& q, const 
             VectorXr d_ffj_mag_dp = VectorXr::Zero(2 * single_ball_vertex_num_);
             VectorXr d_ffi_mag_dp = VectorXr::Zero(2 * single_ball_vertex_num_);
             d_ffj_mag_dp(ball_num + j) = fj_mag;
-            d_ffj_mag_dp(j) = std::max(2 * radius_ - cij_dist, 0.0) * frictional_coeff(j);
+            d_ffj_mag_dp(j) = std::max(2 * radius_ - cij_dist, 0.0f) * frictional_coeff(j);
             d_ffi_mag_dp(ball_num + i) = fi_mag;
-            d_ffi_mag_dp(i) = std::max(2 * radius_ - cij_dist, 0.0) * frictional_coeff(i);
+            d_ffi_mag_dp(i) = std::max(2 * radius_ - cij_dist, 0.0f) * frictional_coeff(i);
             const VectorXr d_ffj_mag_ci = d_fj_mag_ci * frictional_coeff(j);
             const VectorXr d_ffj_mag_cj = d_fj_mag_cj * frictional_coeff(j);
             const VectorXr d_ffi_mag_ci = d_fi_mag_ci * frictional_coeff(i);

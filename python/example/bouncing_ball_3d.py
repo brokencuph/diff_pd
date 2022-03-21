@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # Optimization parameters.
     thread_ct = 8
     newton_opt = { 'max_newton_iter': 500, 'max_ls_iter': 10, 'abs_tol': 1e-9, 'rel_tol': 1e-4, 'verbose': 0, 'thread_ct': thread_ct }
-    pd_opt = { 'max_pd_iter': 500, 'max_ls_iter': 10, 'abs_tol': 1e-9, 'rel_tol': 1e-4, 'verbose': 0, 'thread_ct': thread_ct,
+    pd_opt = { 'max_pd_iter': 500, 'max_ls_iter': 10, 'abs_tol': 1e-6, 'rel_tol': 1e-4, 'verbose': 0, 'thread_ct': thread_ct,
         'use_bfgs': 1, 'bfgs_history_size': 10 }
     methods = ('newton_pcg', 'newton_cholesky', 'pd_eigen')
     opts = (newton_opt, newton_opt, pd_opt)
@@ -48,7 +48,9 @@ if __name__ == '__main__':
     f0 = [np.zeros(dofs) for _ in range(frame_num)]
 
     # Generate groundtruth motion.
-    env.simulate(dt, frame_num, methods[2], opts[2], q0, v0, a0, f0, require_grad=False, vis_folder='groundtruth')
+    _, info = env.simulate(dt, frame_num, methods[2], opts[2], q0, v0, a0, f0, require_grad=False, vis_folder=None)
+    print("forward_time={}, forward_time_per_frame={}".format(info['forward_time'], info['forward_time_per_frame']))
+    exit(0)
 
     # Optimization.
     # Decision variables: log(E), log(nu).
